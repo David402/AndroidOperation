@@ -1,8 +1,12 @@
-package com.david402.androidoperation;
+
 
 import java.util.concurrent.Callable;
 
 import junit.framework.TestCase;
+
+import com.david402.androidoperation.BaseOperationQueue;
+import com.david402.androidoperation.Operation;
+import com.david402.androidoperation.OperationQueue;
 
 public class OperationTest extends TestCase {
 
@@ -25,11 +29,11 @@ public class OperationTest extends TestCase {
         System.out.print("[1]");
         for (int i = 0; i < 100; i++) {
             final int outInt = i;
-            queue.add(new Operation(new Callable<OperationResult>() {
+            queue.add(new Operation(new Callable<Object>() {
                 @Override
-                public OperationResult call() {
+                public Object call() {
                     System.out.print(outInt + " ");
-                    return new OperationResult(outInt);
+                    return Integer.valueOf(outInt);
                 }
             }));
         }
@@ -48,11 +52,11 @@ public class OperationTest extends TestCase {
         System.out.print("[2]");
         for (int i = 0; i < 100; i++) {
             final int outInt = i;
-            queue.add(new Operation(new Callable<OperationResult>() {
+            queue.add(new Operation(new Callable<Object>() {
                 @Override
-                public OperationResult call() {
+                public Object call() {
                     System.out.print(outInt + " ");
-                    return new OperationResult(outInt);
+                    return Integer.valueOf(outInt);
                 }
             }));
         }

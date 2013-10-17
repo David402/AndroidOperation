@@ -3,7 +3,6 @@
  */
 package com.david402.androidoperation;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -20,7 +19,6 @@ public class BaseOperationQueue implements OperationQueue {
     private static final int DEFAULT_CORE_POOL_SIZE = 5;
     private static final int DEFAULT_MAXIMUM_POOL_SIZE = 128;
     private static final int DEFAULT_KEEP_ALIVE = 1;
-    private static final BlockingQueue<Runnable> DEFAULT_WORK_QUEUE = new LinkedBlockingQueue<Runnable>(10);
 
     private static final ThreadFactory DEFAULT_THREAD_FACTORY = new ThreadFactory() {
         private final AtomicInteger counter = new AtomicInteger(0);
@@ -52,13 +50,13 @@ public class BaseOperationQueue implements OperationQueue {
         mExecutor.remove(op);
     }
 
-    public OperationQueue newSerialOperationQueue() {
+    public static OperationQueue newSerialOperationQueue() {
         return new BaseOperationQueue(new ThreadPoolExecutor(1, 1,
-                DEFAULT_KEEP_ALIVE, TimeUnit.SECONDS, DEFAULT_WORK_QUEUE, DEFAULT_THREAD_FACTORY));
+                DEFAULT_KEEP_ALIVE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), DEFAULT_THREAD_FACTORY));
     }
     
-    public OperationQueue newBackgroundOperationQueue() {
+    public static OperationQueue newBackgroundOperationQueue() {
         return new BaseOperationQueue(new ThreadPoolExecutor(DEFAULT_CORE_POOL_SIZE, DEFAULT_MAXIMUM_POOL_SIZE,
-                DEFAULT_KEEP_ALIVE, TimeUnit.SECONDS, DEFAULT_WORK_QUEUE, DEFAULT_THREAD_FACTORY));
+                DEFAULT_KEEP_ALIVE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), DEFAULT_THREAD_FACTORY));
     }
 }

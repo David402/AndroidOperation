@@ -8,11 +8,14 @@ import java.util.concurrent.FutureTask;
  * @author davidliu
  *
  */
-public class Operation extends FutureTask<OperationResult> {
+public class Operation extends FutureTask<Object> {
+    private Object mResult;
 
-    public Operation(Callable<OperationResult> callable) {
+    public Operation(Callable<Object> callable) {
         super(callable);
-        // TODO Auto-generated constructor stub
     }
 
+    public Object getResult() {
+        return mResult;
+    }
 }
