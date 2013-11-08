@@ -9,10 +9,10 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author davidliu
  *
  */
-public class BaseOperationQueue implements OperationQueue {
+public class OperationQueueImpl implements OperationQueue {
     private final ThreadPoolExecutor mExecutor;
     
-    public BaseOperationQueue(ThreadPoolExecutor executor) {
+    public OperationQueueImpl(ThreadPoolExecutor executor) {
         mExecutor = executor;
     }
 

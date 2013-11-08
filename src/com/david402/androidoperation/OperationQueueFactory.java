@@ -6,6 +6,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * 
+ * @author davidliu
+ *
+ */
 public class OperationQueueFactory {
         
     private static OperationQueue mDefaultSerialQueue;
@@ -67,7 +72,7 @@ public class OperationQueueFactory {
      */
     public static OperationQueue newSerialOperationQueue() {
         
-        return new BaseOperationQueue(new ThreadPoolExecutor(1, 1,
+        return new OperationQueueImpl(new ThreadPoolExecutor(1, 1,
                 DEFAULT_KEEP_ALIVE, TimeUnit.SECONDS, 
                 new LinkedBlockingQueue<Runnable>(), 
                 DEFAULT_THREAD_FACTORY));
@@ -101,7 +106,7 @@ public class OperationQueueFactory {
             int defaultPoolSize, 
             int maxPoolSize) {
         
-        return new BaseOperationQueue(new ThreadPoolExecutor(
+        return new OperationQueueImpl(new ThreadPoolExecutor(
                 defaultPoolSize, maxPoolSize,
                 DEFAULT_KEEP_ALIVE, TimeUnit.SECONDS, 
                 new LinkedBlockingQueue<Runnable>(), 
