@@ -6,6 +6,6 @@ package com.david402.androidoperation;
  *
  */
 public interface OperationQueue {
-    public void add(Operation op);
-    public void remove(Operation op);
+    public void add(Operation<?> op);
+    public void remove(Operation<?> op);
 }
