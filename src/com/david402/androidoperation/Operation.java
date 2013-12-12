@@ -72,10 +72,5 @@ public class Operation<T> extends FutureTask<T> {
         
         // Run self's task
         super.run();
-        
-        // Quit looper
-        if (Looper.myLooper() != null) {
-            Looper.myLooper().quit();
-        }
     }
 }
