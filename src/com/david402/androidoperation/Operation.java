@@ -91,7 +91,14 @@ public class Operation<T> extends FutureTask<T> {
                 op.cancel(mayInterruptIfRunning);
             }
         }
-        return super.cancel(mayInterruptIfRunning);
+        boolean cancelStatus = super.cancel(mayInterruptIfRunning);
+        // Call callback with 'InterruptedException' if operation is cancelled
+        // successfully.
+        if (cancelStatus && mListener != null) {
+            mListener.callback(null, 
+                    new InterruptedException("Operation is interrupted."));
+        }
+        return cancelStatus;
     }
     
     @Override
