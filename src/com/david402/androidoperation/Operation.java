@@ -113,6 +113,21 @@ public class Operation<T> extends FutureTask<T> {
         }
         
         // Run self's task
-        super.run();
+        Exception exception = null;
+        try {
+            super.run();
+        } catch (Exception e) {
+            exception = e;
+        }
+        
+        if (mListener != null) {
+            try {
+                mListener.callback(get(), exception);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
