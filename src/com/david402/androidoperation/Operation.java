@@ -17,7 +17,20 @@ public class Operation<T> extends FutureTask<T> {
     private String mName;
     private Object mResult;
     private OperationListener<T> mListener;
+    private boolean mIsCascadeCancel = false;
+    /**
+     * Queue of dependent operations - All the dependent operations should 
+     * be done before this operation being executed.
+     */
     private final ArrayList<Operation<?>> mDependentOps = 
+            new ArrayList<Operation<?>>();
+    /**
+     * Queue of following operations - Following operations needs to be
+     * executed after this operation is done. If this operation is cancelled,
+     * all the following operations should be cancelled as well if `cascadeCancel`
+     * flag is `true`.
+     */
+    private final ArrayList<Operation<?>> mFollowingOps = 
             new ArrayList<Operation<?>>();
 
     public static interface OperationListener<T> {
@@ -39,17 +52,53 @@ public class Operation<T> extends FutureTask<T> {
     public void setListener(OperationListener<T> listener) {
         mListener = listener;
     }
+    
+    public boolean isCascadeCancel() {
+        return mIsCascadeCancel;
+    }
+    
+    public void setCascadeCancel(boolean isCascadeCancel) {
+        mIsCascadeCancel = isCascadeCancel;
+    }
  
     public void addDependency(Operation<?> operation) {
         if (operation == null) return;
         mDependentOps.add(operation);
+        operation.addFollowingOp(this);
     }
     
     public void addDependency(Operation<?>...operations) {
         if (operations == null) return;
         for (Operation<?> op : operations) {
             mDependentOps.add(op);
+            op.addFollowingOp(this);
         }
+    }
+    
+    public void addFollowingOp(Operation<?> operation) {
+        if (operation == null) return;
+        mFollowingOps.add(operation);
+    }
+    
+    /**
+     * Override {@link #cancel(boolean)} to cascade cancel following operations
+     * if {@link #isCascadeCancel()} is true.
+     */
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        if (isCascadeCancel()) {
+            for (Operation<?> op : mFollowingOps) {
+                op.cancel(mayInterruptIfRunning);
+            }
+        }
+        boolean cancelStatus = super.cancel(mayInterruptIfRunning);
+        // Call callback with 'InterruptedException' if operation is cancelled
+        // successfully.
+        if (cancelStatus && mListener != null) {
+            mListener.callback(null, 
+                    new InterruptedException("Operation is interrupted."));
+        }
+        return cancelStatus;
     }
     
     @Override
@@ -71,6 +120,21 @@ public class Operation<T> extends FutureTask<T> {
         }
         
         // Run self's task
-        super.run();
+        Exception exception = null;
+        try {
+            super.run();
+        } catch (Exception e) {
+            exception = e;
+        }
+        
+        if (mListener != null) {
+            try {
+                mListener.callback(get(), exception);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
